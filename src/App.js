@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import client from './client'
 import {ApolloProvider} from 'react-apollo';
 
@@ -17,11 +17,23 @@ function App() {
 
   const [variables, setVariables] = useState(VARIABLES)
 
+  const handleChange = useCallback((e) => {
+    console.log(e.target.value)
+    setVariables({
+      ...variables,
+      query: e.target.value
+    })
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+  }
+
   return (
     <ApolloProvider client={client}>
-      <div>
-        Hello, GraphQL
-      </div>
+      <form onSubmit={(e) => handleSubmit(e)}>
+        <input value={variables.query} onChange={(e) => handleChange(e)} />
+      </form>
       <Query query={SEARTCH_REPOSITORIES} variables={{...variables}}>
         {
           ({loading, error, data}) => {
