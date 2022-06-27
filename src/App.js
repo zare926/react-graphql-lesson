@@ -15,11 +15,11 @@ const VARIABLES = {
 
 function App() {
 
-  const [variables, setVariables] = useState(VARIABLES)
+  const [defaultState, setDefaultState] = useState(VARIABLES)
 
   const handleChange = useCallback((e) => {
     console.log(e.target.value)
-    setVariables({
+    setDefaultState({
       ...variables,
       query: e.target.value
     })
@@ -34,7 +34,7 @@ function App() {
       <form onSubmit={(e) => handleSubmit(e)}>
         <input value={variables.query} onChange={(e) => handleChange(e)} />
       </form>
-      <Query query={SEARTCH_REPOSITORIES} variables={{...variables}}>
+      <Query query={SEARTCH_REPOSITORIES} variables={{...defaultState}}>
         {
           ({loading, error, data}) => {
             if (loading) return 'Loading...'
