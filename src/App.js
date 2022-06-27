@@ -20,7 +20,7 @@ function App() {
   const handleChange = useCallback((e) => {
     console.log(e.target.value)
     setDefaultState({
-      ...variables,
+      ...defaultState,
       query: e.target.value
     })
   })
@@ -32,15 +32,19 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <form onSubmit={(e) => handleSubmit(e)}>
-        <input value={variables.query} onChange={(e) => handleChange(e)} />
+        <input value={defaultState.query} onChange={(e) => handleChange(e)} />
       </form>
       <Query query={SEARTCH_REPOSITORIES} variables={{...defaultState}}>
         {
           ({loading, error, data}) => {
             if (loading) return 'Loading...'
             if (error) return `Error! ${error.message}`
-            console.log({data})
-            return <div>{}</div>
+            const search = data.search
+            const repositoryCount = search.repositoryCount
+
+            const repositoryUnit = repositoryCount === 1 ? 'Repository' : 'Repositories'
+            const title = `GitHub Repositories Search Results - ${repositoryCount} ${repositoryUnit}`
+            return <h2>{title}</h2>
           }
         }
       </Query>
