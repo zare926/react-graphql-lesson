@@ -40,6 +40,16 @@ function App() {
     })
   }
 
+  const goPrevious = (search) => {
+    setDefaultState({
+      ...defaultState,
+      first: null,
+      after: null,
+      last: PER_PAGE,
+      before:  search.pageInfo.startCursor
+    })
+  }
+
   return (
     <ApolloProvider client={client}>
       <form onSubmit={(e) => handleSubmit(e)}>
@@ -71,6 +81,7 @@ function App() {
                       })
                     }
                 </ul>
+                {search.pageInfo.hasPreviousPage && <button onClick={() => goPrevious(search)}>Previous</button> }
                 {search.pageInfo.hasNextPage && <button onClick={() => goNext(search)}>Next</button> }
               </React.Fragment>
             )
