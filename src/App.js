@@ -5,8 +5,10 @@ import {ApolloProvider} from 'react-apollo';
 import { Query } from 'react-apollo'
 import { SEARTCH_REPOSITORIES } from './graphql'
 
+const PER_PAGE = 5
+
 const VARIABLES = {
-  first: 5,
+  first: PER_PAGE,
   after: null,
   last: null,
   before: null,
@@ -18,7 +20,6 @@ function App() {
   const [defaultState, setDefaultState] = useState(VARIABLES)
 
   const handleChange = useCallback((e) => {
-    console.log(e.target.value)
     setDefaultState({
       ...defaultState,
       query: e.target.value
@@ -27,6 +28,16 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+  }
+
+  const goNext = (search) => {
+    setDefaultState({
+      ...defaultState,
+      first: PER_PAGE,
+      after: search.pageInfo.endCursor,
+      last: null,
+      before: null
+    })
   }
 
   return (
@@ -53,13 +64,14 @@ function App() {
                         const node = edge.node
                         return (
                           <li key={node.id}>
-                            <a href={node.url} target="_blank">{node.name}</a>
+                            <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a>
                           </li>
 
                         )
                       })
                     }
                 </ul>
+                {search.pageInfo.hasNextPage && <button onClick={() => goNext(search)}>Next</button> }
               </React.Fragment>
             )
           }
