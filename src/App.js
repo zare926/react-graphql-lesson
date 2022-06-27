@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import client from './client'
 import {ApolloProvider} from 'react-apollo';
 
@@ -15,14 +15,26 @@ const VARIABLES = {
 
 function App() {
 
-  const [variables, setVariables] = useState(VARIABLES)
+  const [defaultState, setDefaultState] = useState(VARIABLES)
+
+  const handleChange = useCallback((e) => {
+    console.log(e.target.value)
+    setDefaultState({
+      ...variables,
+      query: e.target.value
+    })
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+  }
 
   return (
     <ApolloProvider client={client}>
-      <div>
-        Hello, GraphQL
-      </div>
-      <Query query={SEARTCH_REPOSITORIES} variables={{...variables}}>
+      <form onSubmit={(e) => handleSubmit(e)}>
+        <input value={variables.query} onChange={(e) => handleChange(e)} />
+      </form>
+      <Query query={SEARTCH_REPOSITORIES} variables={{...defaultState}}>
         {
           ({loading, error, data}) => {
             if (loading) return 'Loading...'
