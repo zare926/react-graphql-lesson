@@ -14,16 +14,15 @@ const VARIABLES = {
 }
 
 function App() {
-  const [variables, setVariables] = useState(VARIABLES)
 
-  const { query, first, last, before, after } = variables
+  const [variables, setVariables] = useState(VARIABLES)
 
   return (
     <ApolloProvider client={client}>
       <div>
         Hello, GraphQL
       </div>
-      <Query query={SEARTCH_REPOSITORIES} variables={{ query, first, last, before, after }}>
+      <Query query={SEARTCH_REPOSITORIES} variables={{...variables}}>
         {
           ({loading, error, data}) => {
             if (loading) return 'Loading...'
