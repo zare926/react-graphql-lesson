@@ -7,9 +7,17 @@ import { SEARTCH_REPOSITORIES } from './graphql'
 
 
 const StarButton = (props) => {
-  console.log()
-  const totalCount = props.node.stargazers.totalCount
-  return <button>{totalCount === 1 ? "1 star" : `${totalCount} stars`}</button>
+  const node = props.node
+  const totalCount = node.stargazers.totalCount
+  const viewerHasStarred = node.viewerHasStarred
+  const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
+
+  return(
+    <button>
+      {starCount} | {viewerHasStarred ? 'starred' : '-'}
+    </button>
+  )
+
 }
 
 
