@@ -1,9 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import client from './client'
-import {ApolloProvider} from 'react-apollo';
-
-import { Query } from 'react-apollo'
-import { SEARTCH_REPOSITORIES } from './graphql'
+import { ApolloProvider, Query, Mutation } from 'react-apollo'
+import { SEARTCH_REPOSITORIES, ADD_STAR } from './graphql'
 
 
 const StarButton = (props) => {
@@ -12,12 +10,31 @@ const StarButton = (props) => {
   const viewerHasStarred = node.viewerHasStarred
   const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
 
-  return(
-    <button>
+  const StarStatus = ({addStar}) => {
+    return (
+    <button onClick={
+      () => {
+        addStar({
+          variables: {
+            input: {
+              starrableId: node.id
+            }
+          }
+        })
+      }
+    }>
       {starCount} | {viewerHasStarred ? 'starred' : '-'}
     </button>
-  )
+    )
+  }
 
+  return (
+    <Mutation mutation={ADD_STAR}>
+      {
+        addStar => <StarStatus addStar={addStar}/>
+      }
+    </Mutation>
+  )
 }
 
 
