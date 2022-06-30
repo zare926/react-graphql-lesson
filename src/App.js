@@ -4,54 +4,66 @@ import { ApolloProvider, Query, Mutation } from 'react-apollo'
 import { SEARTCH_REPOSITORIES, ADD_STAR, REMOVE_STAR } from './graphql'
 
 
-const StarButton = (props) => {
-  const node = props.node
-  const totalCount = node.stargazers.totalCount
-  const viewerHasStarred = node.viewerHasStarred
-  const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
-
-  const StarStatus = ({addOrRemoveStar}) => {
-    return (
-    <button onClick={
-      () => {
-        addOrRemoveStar({
-          variables: {
-            input: {
-              starrableId: node.id
-            }
-          }
-        })
-      }
-    }>
-      {starCount} | {viewerHasStarred ? 'starred' : '-'}
-    </button>
-    )
-  }
-
-  return (
-    <Mutation mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR }>
-      {
-        (addOrRemoveStar) => 
-          <StarStatus addOrRemoveStar={addOrRemoveStar}/>
-      }
-    </Mutation>
-  ) 
-}
-
-
-const PER_PAGE = 5
-
-const VARIABLES = {
-  first: PER_PAGE,
-  after: null,
-  last: null,
-  before: null,
-  query: 'フロントエンドエンジニア'
-}
-
 function App() {
 
+  const PER_PAGE = 5
+  
+  const VARIABLES = {
+    first: PER_PAGE,
+    after: null,
+    last: null,
+    before: null,
+    query: 'フロントエンドエンジニア'
+  }
+
   const [defaultState, setDefaultState] = useState(VARIABLES)
+  
+  const StarButton = (props) => {
+    const { node , ...omitProps } = props
+    console.log(omitProps)
+    console.log(node)
+    const { query, first, last, before, after } = omitProps
+    const totalCount = node.stargazers.totalCount
+    const viewerHasStarred = node.viewerHasStarred
+    const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
+  
+    const StarStatus = ({addOrRemoveStar}) => {
+      return (
+      <button onClick={
+        () => {
+          addOrRemoveStar({
+            variables: {
+              input: {
+                starrableId: node.id
+              }
+            }
+          })
+        }
+      }>
+        {starCount} | {viewerHasStarred ? 'starred' : '-'}
+      </button>
+      )
+    }
+  
+    return (
+      <Mutation mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR }
+        refetchQueries={
+          [
+            {
+              query: SEARTCH_REPOSITORIES,
+              variables: { query, first, last , before, after }
+            }
+          ]
+        }
+      >
+        {
+          (addOrRemoveStar) => 
+            <StarStatus addOrRemoveStar={addOrRemoveStar}/>
+        }
+      </Mutation>
+    ) 
+  }
+  
 
   const handleChange = useCallback((e) => {
     setDefaultState({
@@ -89,7 +101,7 @@ function App() {
       <form onSubmit={(e) => handleSubmit(e)}>
         <input value={defaultState.query} onChange={(e) => handleChange(e)} />
       </form>
-      <Query query={SEARTCH_REPOSITORIES} variables={{...defaultState}}>
+      <Query query={SEARTCH_REPOSITORIES} variables={defaultState}>
         {
           ({loading, error, data}) => {
             if (loading) return 'Loading...'
@@ -110,7 +122,7 @@ function App() {
                           <li key={node.id}>
                             <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a>
                             &nbsp;
-                            <StarButton node={node} />
+                            <StarButton node={node} {...defaultState}/>
                           </li>
 
                         )
