@@ -47,15 +47,16 @@ function App() {
   
     return (
       <Mutation mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR }
-        refetchQueries={
-          [
+        refetchQueries={ mutationRefetch => {
+          console.log(mutationRefetch)
+          return  [
             {
               query: SEARTCH_REPOSITORIES,
               variables: { query, first, last , before, after }
             }
           ]
         }
-      >
+      }>
         {
           (addOrRemoveStar) => 
             <StarStatus addOrRemoveStar={addOrRemoveStar}/>
