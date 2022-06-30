@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback,ref } from 'react';
 import client from './client'
 import { ApolloProvider, Query, Mutation } from 'react-apollo'
 import { SEARTCH_REPOSITORIES, ADD_STAR, REMOVE_STAR } from './graphql'
@@ -13,7 +13,7 @@ function App() {
     after: null,
     last: null,
     before: null,
-    query: 'フロントエンドエンジニア'
+    query: ''
   }
 
   const [defaultState, setDefaultState] = useState(VARIABLES)
@@ -84,16 +84,20 @@ function App() {
     ) 
   }
   
-
-  const handleChange = useCallback((e) => {
-    setDefaultState({
-      ...defaultState,
-      query: e.target.value
-    })
-  })
+  const myRef = React.createRef()
+  // const handleChange = useCallback((e) => {
+  //   setDefaultState({
+  //     ...defaultState,
+  //     query: e.target.value
+  //   })
+  // })
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    setDefaultState({
+      ...defaultState,
+      query: myRef.current.value
+    })
   }
 
   const goNext = (search) => {
@@ -119,7 +123,8 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <form onSubmit={(e) => handleSubmit(e)}>
-        <input value={defaultState.query} onChange={(e) => handleChange(e)} />
+        <input ref={myRef} />
+        <input type="submit" value="Submit"/>
       </form>
       <Query query={SEARTCH_REPOSITORIES} variables={defaultState}>
         {
