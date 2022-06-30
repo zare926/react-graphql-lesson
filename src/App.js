@@ -20,8 +20,8 @@ function App() {
   
   const StarButton = (props) => {
     const { node , ...omitProps } = props
-    console.log(omitProps)
-    console.log(node)
+    // console.log(omitProps)
+    // console.log(node)
     const { query, first, last, before, after } = omitProps
     const totalCount = node.stargazers.totalCount
     const viewerHasStarred = node.viewerHasStarred
@@ -32,10 +32,28 @@ function App() {
       <button onClick={
         () => {
           addOrRemoveStar({
-            variables: {
-              input: {
-                starrableId: node.id
-              }
+            variables: { input: { starrableId: node.id } },
+            update: (store, { data: { addStar, removeStar }}) => {
+              const { starrable } = addStar || removeStar
+              console.log({starrable})
+              const data = store.readQuery({
+                query: SEARTCH_REPOSITORIES,
+                variables: { query, first, last, before, after } 
+              })
+              const edges = data.search.edges
+              const newEdges = edges.map(edge => {
+                if (edge.node.id === node.id){
+                  const totalCount = edge.node.stargazers.totalCount
+                  // const diff = viewerHasStarred ? -1 : 1
+                  const diff = starrable.viewerHasStarred ? 1 : -1
+                  const newTotalCount = totalCount + diff
+                  edge.node.stargazers.totalCount = newTotalCount
+                }
+                return edge
+              })
+
+              data.search.edges = newEdges
+              store.writeQuery({ query: SEARTCH_REPOSITORIES, data})
             }
           })
         }
@@ -47,16 +65,17 @@ function App() {
   
     return (
       <Mutation mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR }
-        refetchQueries={ mutationRefetch => {
-          console.log(mutationRefetch)
-          return  [
-            {
-              query: SEARTCH_REPOSITORIES,
-              variables: { query, first, last , before, after }
-            }
-          ]
-        }
-      }>
+        // refetchQueries={ mutationRefetch => {
+        //   console.log(mutationRefetch)
+        //   return  [
+        //     {
+        //       query: SEARTCH_REPOSITORIES,
+        //       variables: { query, first, last , before, after }
+        //     }
+        //   ]
+        // }
+        // }
+        >
         {
           (addOrRemoveStar) => 
             <StarStatus addOrRemoveStar={addOrRemoveStar}/>
